@@ -19,7 +19,7 @@ pipeline {
                     sshPublisher(
                         failOnError: true,
                         continueOnError: false,
-                        Publishers: [
+                        publishers: [
                             configName: 'Staging Server',
                             sshCredentials: [
                                 username: "$USERNAME",
@@ -50,7 +50,7 @@ pipeline {
                     sshPublisher(
                         failOnError: true,
                         continueOnError: false,
-                        Publishers: [
+                        publishers: [
                             configName: 'Prod Server',
                             sshCredentials: [
                                 username: "$USERNAME",
