@@ -44,7 +44,7 @@ pipeline {
             }
             steps {
                 echo 'Running Deploy Production'
-                input(Does the staging server look good?)
+                input('Does the staging server look good?')
                 milestone(1)
                 withCredentials([usernamePassword(credentialsId: 'webserver_login', usernameVariable: 'USERNAME', passwordVariable: 'PASSWORD')]) {
                     sshPublisher(
