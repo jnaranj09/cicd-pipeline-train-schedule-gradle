@@ -20,7 +20,7 @@ pipeline {
                         failOnError: true,
                         continueOnError: false,
                         Publishers: [
-                            configName: 'Staging Server'
+                            configName: 'Staging Server',
                             sshCredentials: [
                                 username: "$USERNAME",
                                 encryptedPassword: "$PASSWORD"
@@ -51,7 +51,7 @@ pipeline {
                         failOnError: true,
                         continueOnError: false,
                         Publishers: [
-                            configName: 'Prod Server'
+                            configName: 'Prod Server',
                             sshCredentials: [
                                 username: "$USERNAME",
                                 encryptedPassword: "$PASSWORD"
