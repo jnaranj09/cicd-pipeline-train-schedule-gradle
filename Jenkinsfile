@@ -20,19 +20,21 @@ pipeline {
                         failOnError: true,
                         continueOnError: false,
                         publishers: [
-                            configName: 'Staging Server',
-                            sshCredentials: [
-                                username: "$USERNAME",
-                                encryptedPassword: "$PASSWORD"
-                            ],
-                            transfers: [
-                                sshTransfer(
-                                    sourceFiles: 'dist/trainSchedule.zip',
-                                    removePrefix: 'dist/',
-                                    remoteDirectory: '/tmp',
-                                    execCommand: 'sudo /usr/bin/systemctl stop train-schedule && rm -rf /opt/train-schedule/* && unzip /tmp/trainSchedule.zip -d /opt/train-schedule && sudo /usr/bin/systemctl start train-schedule'
-                                )
-                            ]
+                            sshPublisherDesc(
+                                configName: 'Staging Server',
+                                sshCredentials: [
+                                    username: "$USERNAME",
+                                    encryptedPassword: "$PASSWORD"
+                                ],
+                                transfers: [
+                                    sshTransfer(
+                                        sourceFiles: 'dist/trainSchedule.zip',
+                                        removePrefix: 'dist/',
+                                        remoteDirectory: '/tmp',
+                                        execCommand: 'sudo /usr/bin/systemctl stop train-schedule && rm -rf /opt/train-schedule/* && unzip /tmp/trainSchedule.zip -d /opt/train-schedule && sudo /usr/bin/systemctl start train-schedule'
+                                    )
+                                ]
+                            )
                         ]
                     )
                 }
@@ -51,19 +53,21 @@ pipeline {
                         failOnError: true,
                         continueOnError: false,
                         publishers: [
-                            configName: 'Prod Server',
-                            sshCredentials: [
-                                username: "$USERNAME",
-                                encryptedPassword: "$PASSWORD"
-                            ],
-                            transfers: [
-                                sshTransfer(
-                                    sourceFiles: 'dist/trainSchedule.zip',
-                                    removePrefix: 'dist/',
-                                    remoteDirectory: '/tmp',
-                                    execCommand: 'sudo /usr/bin/systemctl stop train-schedule && rm -rf /opt/train-schedule/* && unzip /tmp/trainSchedule.zip -d /opt/train-schedule && sudo /usr/bin/systemctl start train-schedule'
-                                )
-                            ]
+                            sshPublisherDesc(
+                                configName: 'Prod Server',
+                                sshCredentials: [
+                                    username: "$USERNAME",
+                                    encryptedPassword: "$PASSWORD"
+                                ],
+                                transfers: [
+                                    sshTransfer(
+                                        sourceFiles: 'dist/trainSchedule.zip',
+                                        removePrefix: 'dist/',
+                                        remoteDirectory: '/tmp',
+                                        execCommand: 'sudo /usr/bin/systemctl stop train-schedule && rm -rf /opt/train-schedule/* && unzip /tmp/trainSchedule.zip -d /opt/train-schedule && sudo /usr/bin/systemctl start train-schedule'
+                                    )
+                                ]
+                            )
                         ]
                     )
                 }
