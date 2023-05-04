@@ -23,14 +23,14 @@ pipeline {
                     cd /tmp/
                     put dist/trainSchedule.zip
                     quit
-                    EOC
+            EOC
                     ssh -o StrictHostKeyChecking=no deployer@10.90.100.76 << EOC
                     sudo /usr/bin/systemctl stop train-schedule
                     sudo rm -rf /opt/train-schedule/*
                     sudo unzip /tmp/trainSchedule.zip -d /opt/train-schedule
                     sudo /usr/bin/systemctl start train-schedule
-                    EOC
-                  '''
+            EOC
+                '''
             }
         }
         stage('Deploy to production') {
