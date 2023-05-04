@@ -18,7 +18,12 @@ pipeline {
             }
             steps {
                 echo 'Running Deploy Staging'
-                sh 'sftp -o StrictHostKeyChecking=no deployer@10.90.100.76 "cd /tmp/ && put dist/trainSchedule.zip && quit"'
+                sh '''
+                sftp -o StrictHostKeyChecking=no deployer@10.90.100.76 << EOF
+                cd /tmp/
+                put dist/trainSchedule.zip
+                quit EOF
+                '''
                 sh 'ssh -o StrictHostKeyChecking=no deployer@10.90.100.76 "sudo /usr/bin/systemctl stop train-schedule && sudo rm -rf /opt/train-schedule/* && sudo unzip -o /tmp/trainSchedule.zip -d /opt/train-schedule && sudo /usr/bin/systemctl start train-schedule"'
             }
         }
