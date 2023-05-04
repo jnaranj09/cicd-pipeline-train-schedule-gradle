@@ -36,7 +36,13 @@ pipeline {
                 echo 'Running Deploy Production'
                 input('Does the staging server look good?')
                 milestone(1)
-                sh 'sftp -o StrictHostKeyChecking=no deployer@10.90.100.75 "cd /tmp/ && put dist/trainSchedule.zip && quit"'
+                sh '''
+                sftp -o StrictHostKeyChecking=no deployer@10.90.100.75 << EOF
+                cd /tmp/
+                put dist/trainSchedule.zip
+                quit
+                EOF
+                '''
                 sh 'ssh -o StrictHostKeyChecking=no deployer@10.90.100.75 "sudo /usr/bin/systemctl stop train-schedule && sudo rm -rf /opt/train-schedule/* && sudo unzip -o /tmp/trainSchedule.zip -d /opt/train-schedule && sudo /usr/bin/systemctl start train-schedule"'
             }
         }
