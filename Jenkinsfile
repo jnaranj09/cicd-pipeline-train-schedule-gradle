@@ -25,7 +25,7 @@ pipeline {
                     quit
                     EOC
                 '''
-                sh 'ssh -o StrictHostKeyChecking=no deployer@10.90.100.76 "/usr/bin/systemctl stop train-schedule && rm -rf /opt/train-schedule/* && unzip /tmp/trainSchedule.zip -d /opt/train-schedule && /usr/bin/systemctl start train-schedule"'
+                sh 'ssh -o StrictHostKeyChecking=no deployer@10.90.100.76 "sudo /usr/bin/systemctl stop train-schedule && sudo rm -rf /opt/train-schedule/* && sudo unzip /tmp/trainSchedule.zip -d /opt/train-schedule && sudo /usr/bin/systemctl start train-schedule"'
             }
         }
         stage('Deploy to production') {
