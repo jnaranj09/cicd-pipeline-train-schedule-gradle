@@ -19,8 +19,6 @@ pipeline {
             steps {
                 echo 'Running Deploy Staging'
                 sh 'sftp -o StrictHostKeyChecking=no deployer@10.90.100.76 "cd /tmp/ && put dist/trainSchedule.zip && quit"'
-      
-                   
                 sh 'ssh -o StrictHostKeyChecking=no deployer@10.90.100.76 "sudo /usr/bin/systemctl stop train-schedule && sudo rm -rf /opt/train-schedule/* && sudo unzip -o /tmp/trainSchedule.zip -d /opt/train-schedule && sudo /usr/bin/systemctl start train-schedule"'
             }
         }
@@ -32,19 +30,8 @@ pipeline {
                 echo 'Running Deploy Production'
                 input('Does the staging server look good?')
                 milestone(1)
-                sh '''
-                    sftp -o StrictHostKeyChecking=no deployer@10.90.100.75 << EOC
-                    cd /tmp/
-                    put dist/trainSchedule.zip
-                    quit
-                    EOC
-                    ssh -o StrictHostKeyChecking=no deployer@10.90.100.75 << EOC
-                    sudo /usr/bin/systemctl stop train-schedule
-                    sudo rm -rf /opt/train-schedule/*
-                    sudo unzip /tmp/trainSchedule.zip -d /opt/train-schedule
-                    sudo /usr/bin/systemctl start train-schedule
-                    EOC
-                  '''
+                sh 'sftp -o StrictHostKeyChecking=no deployer@10.90.100.75 "cd /tmp/ && put dist/trainSchedule.zip && quit"'
+                sh 'ssh -o StrictHostKeyChecking=no deployer@10.90.100.75 "sudo /usr/bin/systemctl stop train-schedule && sudo rm -rf /opt/train-schedule/* && sudo unzip -o /tmp/trainSchedule.zip -d /opt/train-schedule && sudo /usr/bin/systemctl start train-schedule"'
             }
         }
     }
