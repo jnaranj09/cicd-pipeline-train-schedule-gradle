@@ -18,29 +18,19 @@ pipeline {
             }
             steps {
                 echo 'Running Deploy Staging'
-                withCredentials([usernamePassword(credentialsId: 'webserver_login', usernameVariable: 'USERNAME', passwordVariable: 'PASSWORD')]) {
-                    sshPublisher(
-                        failOnError: true,
-                        continueOnError: false,
-                        publishers: [
-                            sshPublisherDesc(
-                                configName: 'Staging Server',
-                                sshCredentials: [
-                                    username: "$USERNAME",
-                                    encryptedPassphrase: "$PASSWORD"
-                                ],
-                                transfers: [
-                                    sshTransfer(
-                                        sourceFiles: 'dist/trainSchedule.zip',
-                                        removePrefix: 'dist/',
-                                        remoteDirectory: '/tmp',
-                                        execCommand: 'sudo /usr/bin/systemctl stop train-schedule && rm -rf /opt/train-schedule/* && unzip /tmp/trainSchedule.zip -d /opt/train-schedule && sudo /usr/bin/systemctl start train-schedule'
-                                    )
-                                ]
-                            )
-                        ]
-                    )
-                }
+                sh '''
+                    sftp deployer@10.90.100.76 << EOC
+                    cd /tmp/
+                    put dist/trainSchedule.zip
+                    quit
+                    EOC
+                    ssh deployer@10.90.100.76 << EOC
+                    sudo /usr/bin/systemctl stop train-schedule
+                    sudo rm -rf /opt/train-schedule/*
+                    sudo unzip /tmp/trainSchedule.zip -d /opt/train-schedule
+                    sudo /usr/bin/systemctl start train-schedule
+                    EOC
+                  '''
             }
         }
         stage('Deploy to production') {
@@ -51,29 +41,19 @@ pipeline {
                 echo 'Running Deploy Production'
                 input('Does the staging server look good?')
                 milestone(1)
-                withCredentials([usernamePassword(credentialsId: 'webserver_login', usernameVariable: 'USERNAME', passwordVariable: 'PASSWORD')]) {
-                    sshPublisher(
-                        failOnError: true,
-                        continueOnError: false,
-                        publishers: [
-                            sshPublisherDesc(
-                                configName: 'Prod Server',
-                                sshCredentials: [
-                                    username: "$USERNAME",
-                                    encryptedPassphrase: "$PASSWORD"
-                                ],
-                                transfers: [
-                                    sshTransfer(
-                                        sourceFiles: 'dist/trainSchedule.zip',
-                                        removePrefix: 'dist/',
-                                        remoteDirectory: '/tmp',
-                                        execCommand: 'sudo /usr/bin/systemctl stop train-schedule && rm -rf /opt/train-schedule/* && unzip /tmp/trainSchedule.zip -d /opt/train-schedule && sudo /usr/bin/systemctl start train-schedule'
-                                    )
-                                ]
-                            )
-                        ]
-                    )
-                }
+                sh '''
+                    sftp deployer@10.90.100.75 << EOC
+                    cd /tmp/
+                    put dist/trainSchedule.zip
+                    quit
+                    EOC
+                    ssh deployer@10.90.100.75 << EOC
+                    sudo /usr/bin/systemctl stop train-schedule
+                    sudo rm -rf /opt/train-schedule/*
+                    sudo unzip /tmp/trainSchedule.zip -d /opt/train-schedule
+                    sudo /usr/bin/systemctl start train-schedule
+                    EOC
+                  '''
             }
         }
     }
