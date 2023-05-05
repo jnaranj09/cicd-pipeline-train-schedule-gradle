@@ -45,14 +45,14 @@ pipeline {
                 input 'Deploy to Production?'
                 milestone(1)
                 script {
-                    sh "ssh -o StrictHostKeyChecking=no deployer@10.90.100.79 "docker pull jmnaranjo09/train-schedule:${env.BUILD_NUMBER}""
+                    sh "ssh -o StrictHostKeyChecking=no deployer@10.90.100.79 \"docker pull jmnaranjo09/train-schedule:${env.BUILD_NUMBER}\""
                     try {
-                        sh "ssh -o StrictHostKeyChecking=no deployer@10.90.100.79 "docker stop train-schedule""
-                        sh "ssh -o StrictHostKeyChecking=no deployer@10.90.100.79 "docker rm train-schedule""
+                        sh "ssh -o StrictHostKeyChecking=no deployer@10.90.100.79 \"docker stop train-schedule\""
+                        sh "ssh -o StrictHostKeyChecking=no deployer@10.90.100.79 \"docker rm train-schedule\""
                     } catch (err) {
                         echo: 'caught error: $err'
                     }
-                    sh "ssh -o StrictHostKeyChecking=no deployer@10.90.100.79 "docker run --restart always --name train-schedule -p 8080:8080 -d jmnaranjo09/train-schedule:${env.BUILD_NUMBER}""
+                    sh "ssh -o StrictHostKeyChecking=no deployer@10.90.100.79 \"docker run --restart always --name train-schedule -p 8080:8080 -d jmnaranjo09/train-schedule:${env.BUILD_NUMBER}\""
                 }
             }
         }
