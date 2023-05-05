@@ -11,39 +11,49 @@ pipeline {
                 archiveArtifacts artifacts: 'dist/trainSchedule.zip'
             }
         }
-
-        stage('Deploy to staging') {
+        stage('Build Docker Image') {
             when {
                 branch 'master'
             }
             steps {
-                echo 'Running Deploy Staging'
-                sh '''
-                sftp -o StrictHostKeyChecking=no deployer@10.90.100.76 << EOF
-                cd /tmp/
-                put dist/trainSchedule.zip
-                quit
-                EOF
-                '''
-                sh 'ssh -o StrictHostKeyChecking=no deployer@10.90.100.76 "sudo /usr/bin/systemctl stop train-schedule && sudo rm -rf /opt/train-schedule/* && sudo unzip -o /tmp/trainSchedule.zip -d /opt/train-schedule && sudo /usr/bin/systemctl start train-schedule"'
+                script {
+                    app = docker.build("jmnaranjo09/train-schedule")
+                    app.inside {
+                        sh 'echo $(curl localhost:8080)'
+                    }
+                }
             }
         }
-        stage('Deploy to production') {
+        stage('Push Docker Image') {
             when {
                 branch 'master'
             }
             steps {
-                echo 'Running Deploy Production'
-                input('Does the staging server look good?')
+                script {
+                    docker.withRegistry('https://registry.hub.docker.com', 'docker_hub_login') {
+                        app.push("${env.BUILD_NUMBER}")
+                        app.push("latest")
+                    }
+                }
+            }
+        }
+        stage('DeployToProduction') {
+            when {
+                branch 'master'
+            }
+            steps {
+                input 'Deploy to Production?'
                 milestone(1)
-                sh '''
-                sftp -o StrictHostKeyChecking=no deployer@10.90.100.75 << EOF
-                cd /tmp/
-                put dist/trainSchedule.zip
-                quit
-                EOF
-                '''
-                sh 'ssh -o StrictHostKeyChecking=no deployer@10.90.100.75 "sudo /usr/bin/systemctl stop train-schedule && sudo rm -rf /opt/train-schedule/* && sudo unzip -o /tmp/trainSchedule.zip -d /opt/train-schedule && sudo /usr/bin/systemctl start train-schedule"'
+                script {
+                    sh 'ssh -o StrictHostKeyChecking=no deployer@10.90.100.79 "docker pull jmnaranjo09/train-schedule:${env.BUILD_NUMBER}"'
+                    try {
+                        sh 'ssh -o StrictHostKeyChecking=no deployer@10.90.100.79 "docker stop train-schedule"'
+                        sh 'ssh -o StrictHostKeyChecking=no deployer@10.90.100.79 "docker rm train-schedule"'
+                    } catch (err) {
+                        echo: 'caught error: $err'
+                    }
+                    sh 'ssh -o StrictHostKeyChecking=no deployer@10.90.100.79 "docker run --restart always --name train-schedule -p 8080:8080 -d jmnaranjo09/train-schedule:${env.BUILD_NUMBER}"'
+                }
             }
         }
     }
